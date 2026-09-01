@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-EPSILON = "ε"
+EPSILON = "NOBODY" 
 
 @dataclass
 class Transicion:
