@@ -85,6 +85,7 @@ def dibujar_arbol(arbol, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     titulo = "Árbol sintáctico"
+
     if numero is not None:
         titulo += f" - Expresión {numero}"
 
@@ -115,7 +116,6 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
 
     grafo = nx.DiGraph()
     posiciones = {}
-
     niveles = {}
     visitados = set()
     cola = [(afn.inicial, 0)]
@@ -236,6 +236,7 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     etiquetas_aristas = nx.get_edge_attributes(grafo, "label")
+
     nx.draw_networkx_edge_labels(
         grafo,
         posiciones,
@@ -246,6 +247,7 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     x, y = posiciones[afn.inicial.id]
+
     eje.annotate(
         "",
         xy=(x - 0.45, y),
@@ -254,13 +256,11 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     titulo = "AFN de Thompson"
+
     if numero is not None:
         titulo += f" - Expresión {numero}"
 
-    eje.set_title(
-        f"{titulo}\nr = {expresion}",
-        fontsize=12
-    )
+    eje.set_title(f"{titulo}\nr = {expresion}", fontsize=12)
     eje.axis("off")
     figura.tight_layout()
 
@@ -282,15 +282,14 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     return figura
 
 def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
-    """Dibuja el AFD obtenido mediante construcción de subconjuntos."""
     if afd is None or afd.inicial is None:
         raise ValueError("No se puede dibujar un AFD vacío.")
 
     grafo = nx.DiGraph()
     posiciones = {}
-
     estados = list(afd.estados)
     cantidad = len(estados)
+
     for indice, estado in enumerate(estados):
         posiciones[estado.id] = (indice, 0)
 
@@ -302,6 +301,7 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
         )
 
     etiquetas_transiciones = {}
+
     for estado in estados:
         for simbolo, destino in estado.transiciones.items():
             clave = (estado.id, destino.id)
@@ -316,7 +316,6 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
 
     ancho = max(14, cantidad * 2.4)
     figura, eje = plt.subplots(figsize=(ancho, 7))
-
     normales = [estado.id for estado in estados if not estado.es_aceptacion]
     aceptacion = [estado.id for estado in estados if estado.es_aceptacion]
 
@@ -392,13 +391,11 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     titulo = "AFD - Construcción de Subconjuntos"
+
     if numero is not None:
         titulo += f" - Expresión {numero}"
 
-    eje.set_title(
-        f"{titulo}\nr = {expresion}",
-        fontsize=12,
-    )
+    eje.set_title(f"{titulo}\nr = {expresion}", fontsize=12,)
     eje.axis("off")
     figura.tight_layout()
 

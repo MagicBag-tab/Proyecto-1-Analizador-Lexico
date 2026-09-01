@@ -6,12 +6,10 @@ from visualizador import dibujar_arbol, dibujar_afn, dibujar_afd
 from afn import construir_afn_thompson
 from afd import construccion_subconjuntos
 
-def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=True):
+def procesar(expresion, numero=None, mostrar_arbol=True, mostrar_afn=True, mostrar_afd=True):
     print("=" * 80)
     print("Expresión regular:")
     print(expresion)
-    print("Cadena a reconocer:")
-    print(repr(cadena))
 
     if not balanceada(expresion):
         print("\nERROR: expresión no balanceada.")
@@ -44,13 +42,7 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
         print("Altura:", arbol.altura())
 
         if mostrar_arbol:
-            dibujar_arbol(
-                arbol,
-                expresion,
-                numero=numero,
-                mostrar=True,
-                guardar=True
-            )
+            dibujar_arbol(arbol, expresion, numero=numero, mostrar=True, guardar=True)
 
         afn = construir_afn_thompson(arbol)
 
@@ -60,13 +52,7 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
         print(f"Cantidad de estados: {len(afn.estados)}")
 
         if mostrar_afn:
-            dibujar_afn(
-                afn,
-                expresion,
-                numero=numero,
-                mostrar=True,
-                guardar=True
-            )
+            dibujar_afn(afn, expresion, numero=numero, mostrar=True, guardar=True)
 
         afd = construccion_subconjuntos(afn)
 
@@ -77,8 +63,7 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
         print("Estados de aceptación:", ", ".join(
             f"D{estado.id} = {estado.etiqueta_conjunto()}"
             for estado in afd.estados_aceptacion
-        ) or "ninguno"
-        )
+        ) or "ninguno")
 
         print("Transiciones del AFD:")
         for estado in afd.estados:
@@ -90,38 +75,18 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
                         f"   {destino.etiqueta_conjunto()}"
                     )
 
-        if mostrar_afn:
-            dibujar_afd(
-                afd,
-                expresion,
-                numero=numero,
-                mostrar=True,
-                guardar=True
-            )
-
-        aceptada, traza = afn.simular(cadena)
-        print("\nSimulación del AFN:")
-        print(f"ε-cierre inicial: {formatear_estados(traza[0][1])}")
-
-        for simbolo, estados in traza[1:]:
-            print(f"Con '{simbolo}' -> {formatear_estados(estados)}")
-
-        resultado = "sí" if aceptada else "no"
-        print(f"\n¿w ∈ L(r)? {resultado}")
+        if mostrar_afd:
+            dibujar_afd(afd, expresion, numero=numero, mostrar=True, guardar=True)
 
         return {
+            "expresion": expresion,
+            "tokens": tokens,
+            "postfix": postfix,
             "arbol": arbol,
             "afn": afn,
             "afd": afd,
-            "aceptada": aceptada,
-            "traza": traza
         }
 
     except ValueError as e:
         print("\nERROR:", e)
         return None
-
-def formatear_estados(estados):
-    if not estados:
-        return "∅"
-    return "{" + ", ".join(f"q{estado}" for estado in estados) + "}"

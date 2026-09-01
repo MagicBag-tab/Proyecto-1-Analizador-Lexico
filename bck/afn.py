@@ -24,7 +24,6 @@ class AFN:
         self.estados = estados
 
     def transiciones_epsilon(self, estados):
-        """Calcula el cierre-ε de un conjunto de estados."""
         cierre = set(estados)
         pila = list(estados)
 
@@ -38,7 +37,6 @@ class AFN:
         return cierre
 
     def mover(self, estados, simbolo):
-        """Obtiene los estados alcanzables con un símbolo y luego aplica cierre-ε."""
         destinos = set()
 
         for estado in estados:
@@ -47,26 +45,6 @@ class AFN:
                     destinos.add(transicion.destino)
 
         return self.transiciones_epsilon(destinos)
-
-    def simular(self, cadena):
-        """
-        Simula el AFN mediante conjuntos de estados.
-        Devuelve (aceptada, traza), donde la traza contiene los estados
-        activos después de cada paso.
-        """
-        actuales = self.transiciones_epsilon({self.inicial})
-        traza = [("", sorted(estado.id for estado in actuales))]
-
-        for simbolo in cadena:
-            actuales = self.mover(actuales, simbolo)
-            traza.append((simbolo, sorted(estado.id for estado in actuales)))
-
-            if not actuales:
-                for restante in cadena[len(traza) - 1:]:
-                    traza.append((restante, []))
-                break
-
-        return self.aceptacion in actuales, traza
 
 class ConstructorThompson:
     def __init__(self):
