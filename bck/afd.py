@@ -39,6 +39,22 @@ class AFD:
     def transicion(self, estado: EstadoAFD, simbolo: str):
         return estado.transiciones.get(simbolo)
 
+    def simular(self, cadena: str):
+        actual = self.inicial
+        traza = [("", actual)]
+
+        for simbolo in cadena:
+            siguiente = actual.transiciones.get(simbolo)
+
+            if siguiente is None:
+                traza.append((simbolo, None))
+                return False, traza
+
+            actual = siguiente
+            traza.append((simbolo, actual))
+
+        return actual.es_aceptacion, traza
+
 def _alfabeto_afn(afn: AFN) -> set[str]:
     return {
         transicion.simbolo

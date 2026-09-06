@@ -139,11 +139,17 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
             "afd": afd,
             "afd_min": afd_min,
             "afd_minimizado": afd_min,
+            "aceptada": aceptada,
             "aceptada_afd": aceptada_afd,
             "aceptada_min": aceptada_min,
-            "resultados": resultados,
+            "traza": traza,
         }
 
     except (ValueError, IndexError) as e:
         print("\nERROR:", e)
         return None
+
+def formatear_estados(estados):
+    if not estados:
+        return "∅"
+    return "{" + ", ".join(f"q{estado}" for estado in estados) + "}"
