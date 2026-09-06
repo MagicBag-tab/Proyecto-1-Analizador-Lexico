@@ -2,43 +2,29 @@ from utils import tokenizar, expandir_plus, expandir_question, insertar_concaten
 from shunting_yard import shunting_yard
 from balanceador import balanceada
 from arbol_sintactico import construir_arbol_sintactico
-from visualizador import dibujar_arbol, dibujar_afn, dibujar_afd
+from visualizador import dibujar_arbol, dibujar_afn, dibujar_afd, dibujar_afd_minimizado
 from afn import construir_afn_thompson
 from afd import construccion_subconjuntos
 from afd_minimizado import minimizar_afd
 
 def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=True, mostrar_graficos=True):
     print("=" * 80)
-    print("Expresión regular:")
-    print(expresion)
-    print("Cadena a reconocer:")
-    print(repr(cadena))
+    print("Expresión regular:", expresion)
 
     if not balanceada(expresion):
         print("\nERROR: expresión no balanceada.")
         return None
 
     try:
-        tokens = tokenizar(expresion)
-        print("\nTokens:")
-        print(tokens)
+        tokens_originales = tokenizar(expresion)
+        if not tokens_originales:
+            raise ValueError("La expresión regular no contiene tokens.")
 
-        tokens = expandir_plus(tokens)
-        print("\nDespués de expandir +:")
-        print(tokens)
-
+        tokens = expandir_plus(tokens_originales)
         tokens = expandir_question(tokens)
-        print("\nDespués de expandir ?:")
-        print(tokens)
-
         tokens = insertar_concatenacion(tokens)
-        print("\nDespués de insertar concatenación:")
-        print(tokens)
 
         postfix = shunting_yard(tokens)
-        print("\nPostfix:")
-        print(" ".join(postfix))
-
         arbol = construir_arbol_sintactico(postfix)
         print("\nÁrbol sintáctico:")
         print("Preorden:", " -> ".join(arbol.preorden()))
@@ -144,21 +130,20 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
             print("\n⚠️  ADVERTENCIA: los autómatas no coinciden entre sí. Revisar el pipeline.")
 
         return {
+            "expresion": expresion,
+            "cadena": cadena,
+            "tokens": tokens_originales,
+            "postfix": postfix,
             "arbol": arbol,
             "afn": afn,
             "afd": afd,
             "afd_min": afd_min,
-            "aceptada": aceptada,
+            "afd_minimizado": afd_min,
             "aceptada_afd": aceptada_afd,
             "aceptada_min": aceptada_min,
-            "traza": traza
+            "resultados": resultados,
         }
 
-    except ValueError as e:
+    except (ValueError, IndexError) as e:
         print("\nERROR:", e)
         return None
-
-def formatear_estados(estados):
-    if not estados:
-        return "∅"
-    return "{" + ", ".join(f"q{estado}" for estado in estados) + "}"
