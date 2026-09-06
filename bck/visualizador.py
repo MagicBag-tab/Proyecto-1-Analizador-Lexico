@@ -281,7 +281,7 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
 
     return figura
 
-def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
+def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True, carpeta_nombre="afd", prefijo="afd"):
     """Dibuja el AFD obtenido mediante construcción de subconjuntos."""
     if afd is None or afd.inicial is None:
         raise ValueError("No se puede dibujar un AFD vacío.")
@@ -403,10 +403,10 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
     figura.tight_layout()
 
     if guardar:
-        carpeta = Path("afd")
+        carpeta = Path(carpeta_nombre)
         carpeta.mkdir(exist_ok=True)
 
-        nombre = f"afd_{numero}.png" if numero is not None else "afd.png"
+        nombre = f"{prefijo}_{numero}.png" if numero is not None else f"{prefijo}.png"
         ruta = carpeta / nombre
         figura.savefig(ruta, dpi=160, bbox_inches="tight")
         print(f"AFD guardado en: {ruta}")

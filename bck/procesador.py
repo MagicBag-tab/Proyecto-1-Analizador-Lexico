@@ -5,8 +5,9 @@ from arbol_sintactico import construir_arbol_sintactico
 from visualizador import dibujar_arbol, dibujar_afn, dibujar_afd
 from afn import construir_afn_thompson
 from afd import construccion_subconjuntos
+from afd_minimizado import minimizar_afd
 
-def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=True):
+def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=True, mostrar_graficos=True):
     print("=" * 80)
     print("Expresión regular:")
     print(expresion)
@@ -48,7 +49,7 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
                 arbol,
                 expresion,
                 numero=numero,
-                mostrar=True,
+                mostrar=mostrar_graficos,
                 guardar=True
             )
 
@@ -64,7 +65,7 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
                 afn,
                 expresion,
                 numero=numero,
-                mostrar=True,
+                mostrar=mostrar_graficos,
                 guardar=True
             )
 
@@ -90,13 +91,39 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
                         f"   {destino.etiqueta_conjunto()}"
                     )
 
+        afd_min = minimizar_afd(afd)
+
+        print("\nAFD minimizado:")
+        print(f"Cantidad de estados: {len(afd_min.estados)} (antes: {len(afd.estados)})")
+        print(f"Alfabeto: {', '.join(afd_min.alfabeto) if afd_min.alfabeto else '∅'}")
+        print("Estados de aceptación:", ", ".join(
+            f"D{estado.id} = {estado.etiqueta_conjunto()}"
+            for estado in afd_min.estados_aceptacion
+        ) or "ninguno"
+        )
+
+        print("Transiciones del AFD minimizado:")
+        for estado in afd_min.estados:
+            for simbolo in afd_min.alfabeto:
+                destino = estado.transiciones.get(simbolo)
+                if destino is not None:
+                    print(
+                        f"  D{estado.id} --{simbolo}--> D{destino.id}"
+                        f"   {destino.etiqueta_conjunto()}"
+                    )
+
         if mostrar_afn:
+            # AFD normal, carpeta "afd"
             dibujar_afd(
-                afd,
-                expresion,
-                numero=numero,
-                mostrar=True,
-                guardar=True
+                afd, expresion, numero=numero,
+                mostrar=mostrar_graficos, guardar=True
+            )
+
+            # AFD minimizado, carpeta "afd_min"
+            dibujar_afd(
+                afd_min, expresion, numero=numero,
+                mostrar=mostrar_graficos, guardar=True,
+                carpeta_nombre="afd_min", prefijo="afd_min"
             )
 
         aceptada, traza = afn.simular(cadena)
@@ -106,14 +133,24 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
         for simbolo, estados in traza[1:]:
             print(f"Con '{simbolo}' -> {formatear_estados(estados)}")
 
-        resultado = "sí" if aceptada else "no"
-        print(f"\n¿w ∈ L(r)? {resultado}")
+        aceptada_afd, _ = afd.simular(cadena)
+        aceptada_min, _ = afd_min.simular(cadena)
+
+        print(f"\n¿w ∈ L(r)? (AFN): {'sí' if aceptada else 'no'}")
+        print(f"¿w ∈ L(r)? (AFD): {'sí' if aceptada_afd else 'no'}")
+        print(f"¿w ∈ L(r)? (AFD minimizado): {'sí' if aceptada_min else 'no'}")
+
+        if aceptada != aceptada_afd or aceptada != aceptada_min:
+            print("\n⚠️  ADVERTENCIA: los autómatas no coinciden entre sí. Revisar el pipeline.")
 
         return {
             "arbol": arbol,
             "afn": afn,
             "afd": afd,
+            "afd_min": afd_min,
             "aceptada": aceptada,
+            "aceptada_afd": aceptada_afd,
+            "aceptada_min": aceptada_min,
             "traza": traza
         }
 
