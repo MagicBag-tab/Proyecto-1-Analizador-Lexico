@@ -85,6 +85,7 @@ def dibujar_arbol(arbol, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     titulo = "Árbol sintáctico"
+
     if numero is not None:
         titulo += f" - Expresión {numero}"
 
@@ -115,7 +116,6 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
 
     grafo = nx.DiGraph()
     posiciones = {}
-
     niveles = {}
     visitados = set()
     cola = [(afn.inicial, 0)]
@@ -236,6 +236,7 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     etiquetas_aristas = nx.get_edge_attributes(grafo, "label")
+
     nx.draw_networkx_edge_labels(
         grafo,
         posiciones,
@@ -246,6 +247,7 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     x, y = posiciones[afn.inicial.id]
+
     eje.annotate(
         "",
         xy=(x - 0.45, y),
@@ -254,13 +256,11 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     titulo = "AFN de Thompson"
+
     if numero is not None:
         titulo += f" - Expresión {numero}"
 
-    eje.set_title(
-        f"{titulo}\nr = {expresion}",
-        fontsize=12
-    )
+    eje.set_title(f"{titulo}\nr = {expresion}", fontsize=12)
     eje.axis("off")
     figura.tight_layout()
 
@@ -282,15 +282,14 @@ def dibujar_afn(afn: AFN, expresion, numero=None, mostrar=True, guardar=True):
     return figura
 
 def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
-    """Dibuja el AFD obtenido mediante construcción de subconjuntos."""
     if afd is None or afd.inicial is None:
         raise ValueError("No se puede dibujar un AFD vacío.")
 
     grafo = nx.DiGraph()
     posiciones = {}
-
     estados = list(afd.estados)
     cantidad = len(estados)
+
     for indice, estado in enumerate(estados):
         posiciones[estado.id] = (indice, 0)
 
@@ -302,6 +301,7 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
         )
 
     etiquetas_transiciones = {}
+
     for estado in estados:
         for simbolo, destino in estado.transiciones.items():
             clave = (estado.id, destino.id)
@@ -316,7 +316,6 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
 
     ancho = max(14, cantidad * 2.4)
     figura, eje = plt.subplots(figsize=(ancho, 7))
-
     normales = [estado.id for estado in estados if not estado.es_aceptacion]
     aceptacion = [estado.id for estado in estados if estado.es_aceptacion]
 
@@ -392,13 +391,11 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
     )
 
     titulo = "AFD - Construcción de Subconjuntos"
+
     if numero is not None:
         titulo += f" - Expresión {numero}"
 
-    eje.set_title(
-        f"{titulo}\nr = {expresion}",
-        fontsize=12,
-    )
+    eje.set_title(f"{titulo}\nr = {expresion}", fontsize=12,)
     eje.axis("off")
     figura.tight_layout()
 
@@ -410,6 +407,100 @@ def dibujar_afd(afd, expresion, numero=None, mostrar=True, guardar=True):
         ruta = carpeta / nombre
         figura.savefig(ruta, dpi=160, bbox_inches="tight")
         print(f"AFD guardado en: {ruta}")
+
+    if mostrar:
+        plt.show()
+    else:
+        plt.close(figura)
+
+    return figura
+
+def dibujar_afd_minimizado(afd, expresion, numero=None, mostrar=True, guardar=True):
+    """Dibuja el AFD resultante de la minimización."""
+    if afd is None or afd.inicial is None:
+        raise ValueError("No se puede dibujar un AFD minimizado vacío.")
+
+    grafo = nx.DiGraph()
+    posiciones = {}
+    estados = list(afd.estados)
+
+    for indice, estado in enumerate(estados):
+        posiciones[estado.id] = (indice, 0)
+
+    for estado in estados:
+        grafo.add_node(
+            estado.id,
+            label=f"M{estado.id}\n{estado.etiqueta_conjunto()}",
+            aceptacion=estado.es_aceptacion,
+        )
+
+    etiquetas_transiciones = {}
+    for estado in estados:
+        for simbolo, destino in estado.transiciones.items():
+            clave = (estado.id, destino.id)
+            etiquetas_transiciones.setdefault(clave, []).append(simbolo)
+
+    for (origen, destino), simbolos in etiquetas_transiciones.items():
+        grafo.add_edge(
+            origen,
+            destino,
+            label=", ".join(dict.fromkeys(simbolos)),
+        )
+
+    figura, eje = plt.subplots(figsize=(max(14, len(estados) * 2.4), 7))
+    normales = [e.id for e in estados if not e.es_aceptacion]
+    finales = [e.id for e in estados if e.es_aceptacion]
+
+    nx.draw_networkx_nodes(
+        grafo, posiciones, nodelist=normales, node_size=2300,
+        node_color="white", edgecolors="black", linewidths=1.5, ax=eje
+    )
+    nx.draw_networkx_nodes(
+        grafo, posiciones, nodelist=finales, node_size=2500,
+        node_color="white", edgecolors="black", linewidths=2.5, ax=eje
+    )
+
+    for estado_id in finales:
+        x, y = posiciones[estado_id]
+        eje.add_patch(plt.Circle(
+            (x, y), 0.15, fill=False, linewidth=1.5, transform=eje.transData
+        ))
+
+    nx.draw_networkx_edges(
+        grafo, posiciones, ax=eje, arrows=True, arrowsize=18,
+        connectionstyle="arc3,rad=0.10", width=1.4
+    )
+    nx.draw_networkx_labels(
+        grafo, posiciones,
+        labels=nx.get_node_attributes(grafo, "label"),
+        ax=eje, font_size=9
+    )
+    nx.draw_networkx_edge_labels(
+        grafo, posiciones,
+        edge_labels=nx.get_edge_attributes(grafo, "label"),
+        ax=eje, font_size=9, label_pos=0.5
+    )
+
+    x, y = posiciones[afd.inicial.id]
+    eje.annotate(
+        "", xy=(x - 0.35, y), xytext=(x - 1.15, y),
+        arrowprops=dict(arrowstyle="->", linewidth=1.5)
+    )
+
+    titulo = "AFD Minimizado"
+    if numero is not None:
+        titulo += f" - Expresión {numero}"
+    eje.set_title(f"{titulo}\nr = {expresion}", fontsize=12)
+    eje.axis("off")
+    figura.tight_layout()
+
+    if guardar:
+        carpeta = Path("afd_minimizado")
+        carpeta.mkdir(exist_ok=True)
+        nombre = f"afd_minimizado_{numero}.png" if numero is not None else "afd_minimizado.png"
+        ruta = carpeta / nombre
+        figura.savefig(ruta, dpi=160, bbox_inches="tight")
+        print(f"AFD minimizado guardado en: {ruta}")
 
     if mostrar:
         plt.show()
