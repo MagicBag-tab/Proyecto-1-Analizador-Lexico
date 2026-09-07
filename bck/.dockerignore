@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.pyo
+.env
+.DS_Store
+arboles/
+afn/
+afd/
+afd_minimizado/
+afd_min/

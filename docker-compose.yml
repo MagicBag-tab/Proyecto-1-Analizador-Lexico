@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ./bck
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./bck:/app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+
+  frontend:
+    build:
+      context: ./frt
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frt:/app
+      - /app/node_modules
+    environment:
+      - BACKEND_URL=http://backend:5000
+    depends_on:
+      - backend
