@@ -3,14 +3,6 @@ import './App.css'
 
 import PasoAPaso from './PasoAPaso'
 
-const ETIQUETAS_IMAGENES = {
-  arbol: 'Árbol sintáctico',
-  afn: 'AFN (Thompson)',
-  afd: 'AFD (Subconjuntos)',
-  afd_min: 'AFD minimizado (Particiones)',
-  afd_min_myhill: 'AFD minimizado (Myhill-Nerode)',
-}
-
 function BadgeResultado({ nombre, aceptada }) {
   return (
     <div className={`badge ${aceptada ? 'badge-si' : 'badge-no'}`}>
@@ -65,7 +57,7 @@ function App() {
       setImagenes(datos.imagenes)
       setResultados(datos.resultados)
       setDetalles(datos.detalles)
-    } catch (err) {
+    } catch {
       setError('No se pudo conectar con el servidor. ¿Está corriendo app.py?')
     } finally {
       setCargando(false)
@@ -74,12 +66,22 @@ function App() {
 
   return (
     <div className="contenedor">
-      <h1>Analizador Léxico — Expresiones Regulares</h1>
+      <header className="hero">
+        <div className="hero-kicker">Proyecto de Teoría de la Computación</div>
+        <h1>Analizador de expresiones regulares</h1>
+        <p>Convierte una expresión en autómatas y recorre cada etapa de su construcción.</p>
+      </header>
 
-      <form className="formulario" onSubmit={manejarEnvio}>
+      <form className="formulario" onSubmit={manejarEnvio} aria-busy={cargando}>
+        <div className="formulario-cabecera">
+          <div>
+            <span className="eyebrow">Entrada</span>
+            <h2>Define el lenguaje que quieres analizar</h2>
+          </div>
+        </div>
         {listaExpresiones.length > 0 && (
           <label>
-            Seleccionar de expresiones.txt
+            <span>Ejemplos guardados</span>
             <select className="input-select" onChange={(e) => {
               if(e.target.value === "") return;
               const sel = listaExpresiones[e.target.value];
@@ -95,7 +97,7 @@ function App() {
         )}
 
         <label>
-          Expresión regular (r)
+          <span>Expresión regular <code>(r)</code></span>
           <input
             type="text"
             value={expresion}
@@ -106,7 +108,7 @@ function App() {
         </label>
 
         <label>
-          Cadena a reconocer (w)
+          <span>Cadena a reconocer <code>(w)</code></span>
           <input
             type="text"
             value={cadena}
@@ -115,19 +117,35 @@ function App() {
           />
         </label>
 
-        <button type="submit" disabled={cargando}>
-          {cargando ? 'Procesando...' : 'Procesar'}
+        <button className="boton-principal" type="submit" disabled={cargando}>
+          {cargando ? 'Construyendo...' : 'Analizar expresión'}
         </button>
       </form>
 
       {error && <div className="error">{error}</div>}
 
       {resultados && (
-        <div className="badges">
-          <BadgeResultado nombre="AFN" aceptada={resultados.afn} />
-          <BadgeResultado nombre="AFD" aceptada={resultados.afd} />
-          <BadgeResultado nombre="AFD min (Particiones)" aceptada={resultados.afd_min} />
-          <BadgeResultado nombre="AFD min (Myhill-Nerode)" aceptada={resultados.afd_min_myhill} />
+        <section className="resultados" aria-live="polite">
+          <div className="seccion-heading">
+            <div>
+              <span className="eyebrow">Resultado de la simulación</span>
+              <h2>¿La cadena pertenece al lenguaje?</h2>
+            </div>
+            <code className="cadena-resultada">w = {cadena || 'ε'}</code>
+          </div>
+          <div className="badges">
+            <BadgeResultado nombre="AFN" aceptada={resultados.afn} />
+            <BadgeResultado nombre="AFD" aceptada={resultados.afd} />
+            <BadgeResultado nombre="AFD min (Particiones)" aceptada={resultados.afd_min} />
+            <BadgeResultado nombre="AFD min · Myhill-Nerode" aceptada={resultados.afd_min_myhill} />
+          </div>
+        </section>
+      )}
+
+      {cargando && (
+        <div className="estado-carga" role="status">
+          <span className="spinner" aria-hidden="true" />
+          Generando árbol y autómatas...
         </div>
       )}
 

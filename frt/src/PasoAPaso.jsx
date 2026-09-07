@@ -49,7 +49,7 @@ export default function PasoAPaso({ detalles, imagenes }) {
       ),
     },
     {
-      titulo: '5. AFD Minimizado (Particiones / Hopcroft)',
+      titulo: '5. AFD Minimizado (Particiones)',
       contenido: () => (
         <div className="paso-card row-layout">
           <div className="tabla-container">
@@ -108,7 +108,7 @@ function TablaAFD({ datos }) {
       <tbody>
         {datos.filas.map((fila, i) => (
           <tr key={i} className={fila.aceptacion ? 'estado-aceptacion' : ''}>
-            <td>{fila.estado} {fila.aceptacion && '★'}</td>
+            <td>{fila.estado}</td>
             {datos.alfabeto.map(s => (
               <td key={s}>{fila.transiciones[s]}</td>
             ))}
