@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
+
+import PasoAPaso from './PasoAPaso'
 
 const ETIQUETAS_IMAGENES = {
   arbol: 'Árbol sintáctico',
@@ -20,11 +22,20 @@ function BadgeResultado({ nombre, aceptada }) {
 function App() {
   const [expresion, setExpresion] = useState('(a|b)*abb')
   const [cadena, setCadena] = useState('aabbb')
+  const [listaExpresiones, setListaExpresiones] = useState([])
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState(null)
   const [consola, setConsola] = useState('')
   const [imagenes, setImagenes] = useState(null)
   const [resultados, setResultados] = useState(null)
+  const [detalles, setDetalles] = useState(null)
+
+  useEffect(() => {
+    fetch('/api/expresiones')
+      .then(res => res.json())
+      .then(data => setListaExpresiones(data))
+      .catch(err => console.error('Error cargando expresiones', err))
+  }, [])
 
   const manejarEnvio = async (evento) => {
     evento.preventDefault()
@@ -52,6 +63,7 @@ function App() {
       setConsola(datos.consola)
       setImagenes(datos.imagenes)
       setResultados(datos.resultados)
+      setDetalles(datos.detalles)
     } catch (err) {
       setError('No se pudo conectar con el servidor. ¿Está corriendo app.py?')
     } finally {
@@ -64,6 +76,23 @@ function App() {
       <h1>Analizador Léxico — Expresiones Regulares</h1>
 
       <form className="formulario" onSubmit={manejarEnvio}>
+        {listaExpresiones.length > 0 && (
+          <label>
+            Seleccionar de expresiones.txt
+            <select className="input-select" onChange={(e) => {
+              if(e.target.value === "") return;
+              const sel = listaExpresiones[e.target.value];
+              setExpresion(sel.expresion);
+              setCadena(sel.cadena || '');
+            }}>
+              <option value="">-- Elige una expresión --</option>
+              {listaExpresiones.map((item, i) => (
+                <option key={i} value={i}>{item.expresion} {item.cadena ? `(w=${item.cadena})` : ''}</option>
+              ))}
+            </select>
+          </label>
+        )}
+
         <label>
           Expresión regular (r)
           <input
@@ -100,17 +129,8 @@ function App() {
         </div>
       )}
 
-      {imagenes && (
-        <div className="galeria">
-          {Object.entries(ETIQUETAS_IMAGENES).map(([clave, etiqueta]) => (
-            imagenes[clave] && (
-              <div className="tarjeta-imagen" key={clave}>
-                <h3>{etiqueta}</h3>
-                <img src={imagenes[clave]} alt={etiqueta} />
-              </div>
-            )
-          ))}
-        </div>
+      {imagenes && detalles && (
+        <PasoAPaso detalles={detalles} imagenes={imagenes} />
       )}
 
       {consola && (

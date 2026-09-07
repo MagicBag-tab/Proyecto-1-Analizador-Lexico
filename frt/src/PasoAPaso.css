@@ -1,0 +1,151 @@
+.paso-a-paso {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  border: 1px solid #333;
+}
+
+.paso-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.paso-header h3 {
+  margin: 0;
+  color: #646cff;
+}
+
+.controles {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.indicador-paso {
+  font-weight: bold;
+  color: #aaa;
+}
+
+.paso-titulo {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.paso-card {
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  min-height: 250px;
+}
+
+.row-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.tabla-container {
+  flex: 1;
+  overflow-x: auto;
+}
+
+.img-paso {
+  max-width: 100%;
+  border-radius: 4px;
+  background-color: #fff;
+  padding: 0.5rem;
+}
+
+.img-half {
+  flex: 1;
+  max-width: 100%;
+  min-width: 300px;
+}
+
+.postfix-array {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.token {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 1.2rem;
+}
+
+/* Tabla AFD */
+.tabla-estados {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: monospace;
+}
+
+.tabla-estados th, .tabla-estados td {
+  border: 1px solid #444;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.tabla-estados th {
+  background-color: #333;
+  color: #fff;
+}
+
+.estado-aceptacion td:first-child {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+/* Traza */
+.traza-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.traza-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #333;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.traza-simbolo {
+  width: 120px;
+  font-weight: bold;
+  color: #ff9800;
+}
+
+.traza-estados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.estado-badge {
+  background-color: #2196F3;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.estado-badge.muerto {
+  background-color: #f44336;
+}
