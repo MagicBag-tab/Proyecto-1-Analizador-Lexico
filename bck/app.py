@@ -101,6 +101,7 @@ def procesar_endpoint():
         "afn": _imagen_a_base64("afn", "afn", numero),
         "afd": _imagen_a_base64("afd", "afd", numero),
         "afd_min": _imagen_a_base64("afd_min", "afd_min", numero),
+        "afd_min_myhill": _imagen_a_base64("afd_min_myhill", "afd_min_myhill", numero),
     }
 
     def extraer_tabla(afd_obj, prefijo="D"):
@@ -121,9 +122,9 @@ def procesar_endpoint():
 
     detalles = {
         "postfix": resultado["postfix"],
-        "traza_afn": [{"simbolo": t[0], "estados": t[1]} for t in resultado["traza"]],
         "tabla_afd": extraer_tabla(resultado["afd"], "D"),
         "tabla_afd_min": extraer_tabla(resultado["afd_min"], "M"),
+        "tabla_afd_min_myhill": extraer_tabla(resultado["afd_min_myhill"], "MH"),
     }
 
     return jsonify({
@@ -133,6 +134,7 @@ def procesar_endpoint():
             "afn": resultado["aceptada"],
             "afd": resultado["aceptada_afd"],
             "afd_min": resultado["aceptada_min"],
+            "afd_min_myhill": resultado["aceptada_min_myhill"],
         },
         "detalles": detalles
     })

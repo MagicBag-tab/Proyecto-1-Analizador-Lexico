@@ -5,7 +5,7 @@ from arbol_sintactico import construir_arbol_sintactico
 from visualizador import dibujar_arbol, dibujar_afn, dibujar_afd, dibujar_afd_minimizado
 from afn import construir_afn_thompson
 from afd import construccion_subconjuntos
-from afd_minimizado import minimizar_afd
+from afd_minimizado import minimizar_afd, minimizar_afd_myhill_nerode
 
 def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=True, mostrar_graficos=True):
     print("=" * 80)
@@ -98,6 +98,8 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
                         f"   {destino.etiqueta_conjunto()}"
                     )
 
+        afd_min_myhill = minimizar_afd_myhill_nerode(afd)
+
         if mostrar_afn:
             # AFD normal, carpeta "afd"
             dibujar_afd(
@@ -105,11 +107,18 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
                 mostrar=mostrar_graficos, guardar=True
             )
 
-            # AFD minimizado, carpeta "afd_min"
+            # AFD minimizado (Particiones), carpeta "afd_min"
             dibujar_afd(
                 afd_min, expresion, numero=numero,
                 mostrar=mostrar_graficos, guardar=True,
                 carpeta_nombre="afd_min", prefijo="afd_min"
+            )
+
+            # AFD minimizado (Myhill-Nerode), carpeta "afd_min_myhill"
+            dibujar_afd(
+                afd_min_myhill, expresion, numero=numero,
+                mostrar=mostrar_graficos, guardar=True,
+                carpeta_nombre="afd_min_myhill", prefijo="afd_min_myhill"
             )
 
         aceptada, traza = afn.simular(cadena)
@@ -121,12 +130,14 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
 
         aceptada_afd, _ = afd.simular(cadena)
         aceptada_min, _ = afd_min.simular(cadena)
+        aceptada_min_myhill, _ = afd_min_myhill.simular(cadena)
 
         print(f"\n¿w ∈ L(r)? (AFN): {'sí' if aceptada else 'no'}")
         print(f"¿w ∈ L(r)? (AFD): {'sí' if aceptada_afd else 'no'}")
-        print(f"¿w ∈ L(r)? (AFD minimizado): {'sí' if aceptada_min else 'no'}")
+        print(f"¿w ∈ L(r)? (AFD min Particiones): {'sí' if aceptada_min else 'no'}")
+        print(f"¿w ∈ L(r)? (AFD min Myhill): {'sí' if aceptada_min_myhill else 'no'}")
 
-        if aceptada != aceptada_afd or aceptada != aceptada_min:
+        if aceptada != aceptada_afd or aceptada != aceptada_min or aceptada != aceptada_min_myhill:
             print("\n⚠️  ADVERTENCIA: los autómatas no coinciden entre sí. Revisar el pipeline.")
 
         return {
@@ -138,10 +149,11 @@ def procesar(expresion, cadena="", numero=None, mostrar_arbol=True, mostrar_afn=
             "afn": afn,
             "afd": afd,
             "afd_min": afd_min,
-            "afd_minimizado": afd_min,
+            "afd_min_myhill": afd_min_myhill,
             "aceptada": aceptada,
             "aceptada_afd": aceptada_afd,
             "aceptada_min": aceptada_min,
+            "aceptada_min_myhill": aceptada_min_myhill,
             "traza": traza,
         }
 

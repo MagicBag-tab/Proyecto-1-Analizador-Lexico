@@ -7,7 +7,8 @@ const ETIQUETAS_IMAGENES = {
   arbol: 'Árbol sintáctico',
   afn: 'AFN (Thompson)',
   afd: 'AFD (Subconjuntos)',
-  afd_min: 'AFD minimizado',
+  afd_min: 'AFD minimizado (Particiones)',
+  afd_min_myhill: 'AFD minimizado (Myhill-Nerode)',
 }
 
 function BadgeResultado({ nombre, aceptada }) {
@@ -125,7 +126,8 @@ function App() {
         <div className="badges">
           <BadgeResultado nombre="AFN" aceptada={resultados.afn} />
           <BadgeResultado nombre="AFD" aceptada={resultados.afd} />
-          <BadgeResultado nombre="AFD minimizado" aceptada={resultados.afd_min} />
+          <BadgeResultado nombre="AFD min (Particiones)" aceptada={resultados.afd_min} />
+          <BadgeResultado nombre="AFD min (Myhill-Nerode)" aceptada={resultados.afd_min_myhill} />
         </div>
       )}
 

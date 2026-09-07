@@ -49,17 +49,29 @@ export default function PasoAPaso({ detalles, imagenes }) {
       ),
     },
     {
-      titulo: '5. AFD Minimizado',
+      titulo: '5. AFD Minimizado (Particiones / Hopcroft)',
       contenido: () => (
         <div className="paso-card row-layout">
           <div className="tabla-container">
-            <h4>Tabla de Transiciones (Min)</h4>
+            <h4>Tabla de Transiciones</h4>
             <TablaAFD datos={detalles.tabla_afd_min} />
           </div>
           {imagenes.afd_min && <img src={imagenes.afd_min} alt="AFD Min" className="img-paso img-half" />}
         </div>
       ),
-  ];
+    },
+    {
+      titulo: '6. AFD Minimizado (Myhill-Nerode)',
+      contenido: () => (
+        <div className="paso-card row-layout">
+          <div className="tabla-container">
+            <h4>Tabla de Transiciones (Myhill)</h4>
+            <TablaAFD datos={detalles.tabla_afd_min_myhill} />
+          </div>
+          {imagenes.afd_min_myhill && <img src={imagenes.afd_min_myhill} alt="AFD Min Myhill" className="img-paso img-half" />}
+        </div>
+      ),
+    }];
 
   const avanzar = () => setPaso(p => Math.min(p + 1, pasos.length - 1));
   const retroceder = () => setPaso(p => Math.max(p - 1, 0));

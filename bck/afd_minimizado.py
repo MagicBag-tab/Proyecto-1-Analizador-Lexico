@@ -168,3 +168,94 @@ def minimizar_afd(afd: AFD) -> AFDMinimizado:
         estados=estados_min,
         alfabeto=afd.alfabeto,
     )
+
+def minimizar_afd_myhill_nerode(afd: AFD) -> AFDMinimizado:
+    """
+    Minimiza un AFD utilizando el algoritmo de llenado de tabla (Teorema de Myhill-Nerode).
+    """
+    if afd is None or afd.inicial is None:
+        raise ValueError("No se puede minimizar un AFD vacío.")
+
+    estados = list(afd.estados)
+    pares = [(estados[i], estados[j]) for i in range(len(estados)) for j in range(i+1, len(estados))]
+    marcados = set()
+
+    # 1. Marcar pares donde uno es de aceptación y el otro no
+    for p, q in pares:
+        if p.es_aceptacion != q.es_aceptacion:
+            marcados.add((p.id, q.id))
+            marcados.add((q.id, p.id))
+
+    # 2. Refinar iterativamente
+    cambio = True
+    while cambio:
+        cambio = False
+        for p, q in pares:
+            if (p.id, q.id) not in marcados:
+                for simbolo in afd.alfabeto:
+                    dp = afd.transicion(p, simbolo)
+                    dq = afd.transicion(q, simbolo)
+
+                    # Si uno va a un estado muerto y el otro no, son distinguibles
+                    if (dp is None and dq is not None) or (dp is not None and dq is None):
+                        marcados.add((p.id, q.id))
+                        marcados.add((q.id, p.id))
+                        cambio = True
+                        break
+                    
+                    # Si ambos van a estados válidos, revisar si esos destinos están marcados
+                    if dp is not None and dq is not None:
+                        if (dp.id, dq.id) in marcados:
+                            marcados.add((p.id, q.id))
+                            marcados.add((q.id, p.id))
+                            cambio = True
+                            break
+
+    # 3. Agrupar estados equivalentes (no marcados)
+    visitados = set()
+    grupos_finales = []
+    
+    for estado in estados:
+        if estado.id not in visitados:
+            grupo = {estado}
+            for otro in estados:
+                if estado.id != otro.id and (estado.id, otro.id) not in marcados:
+                    grupo.add(otro)
+            
+            grupos_finales.append(frozenset(grupo))
+            visitados.update(e.id for e in grupo)
+
+    # Orden estable
+    particion_final = sorted(grupos_finales, key=lambda g: min(e.id for e in g))
+
+    estado_a_grupo = {}
+    for indice, grupo in enumerate(particion_final):
+        for estado in grupo:
+            estado_a_grupo[estado] = indice
+
+    estados_min = [
+        EstadoAFDMin(
+            id=indice,
+            estados_originales=grupo,
+            es_aceptacion=any(estado.es_aceptacion for estado in grupo),
+        )
+        for indice, grupo in enumerate(particion_final)
+    ]
+
+    for indice, grupo in enumerate(particion_final):
+        representante = next(iter(grupo))
+        estado_min = estados_min[indice]
+
+        for simbolo in afd.alfabeto:
+            destino = afd.transicion(representante, simbolo)
+            if destino is not None:
+                grupo_destino = estado_a_grupo[destino]
+                estado_min.agregar_transicion(simbolo, estados_min[grupo_destino])
+
+    inicial_min = estados_min[estado_a_grupo[afd.inicial]]
+
+    return AFDMinimizado(
+        inicial=inicial_min,
+        estados=estados_min,
+        alfabeto=afd.alfabeto,
+    )
