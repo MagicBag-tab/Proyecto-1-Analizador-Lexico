@@ -10,6 +10,11 @@ def tokenizar(expresion):
             i += 1
             continue
 
+        if expresion[i:].startswith("nobady"):
+            tokens.append("nobady")
+            i += len("nobady")
+            continue
+
         caracter = expresion[i]
 
         if caracter == "\\":
@@ -33,7 +38,7 @@ def tokenizar(expresion):
             i = j + 1
             continue
 
-        if caracter.isalnum() or caracter == "ε":
+        if caracter.isalnum() or caracter == "nobady":
             tokens.append(caracter)
             i += 1
             continue
@@ -151,7 +156,7 @@ def expandir_question(tokens):
 
         resultado.extend([
             "(",
-            "ε",
+            "nobady",
             "|"
         ])
 

@@ -1,11 +1,14 @@
+import sys
 from procesador import procesar
 
 print("Para cada expresión se solicitará la cadena w que se desea reconocer.")
 print("Cierre la ventana de cada árbol/AFN/AFD/AFD minimizado para continuar.\n")
 
 numero = 0
+archivo_entrada = sys.argv[1] if len(sys.argv) > 1 else "expresiones.txt"
+print(f"Leyendo expresiones de: {archivo_entrada}\n")
 
-with open("expresiones.txt", "r", encoding="utf-8") as archivo:
+with open(archivo_entrada, "r", encoding="utf-8") as archivo:
     for linea in archivo:
         linea = linea.strip()
 
