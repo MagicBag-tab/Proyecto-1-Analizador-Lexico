@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import FrozenSet, List, Optional
 from afd import AFD, EstadoAFD
-
+from time import time
 
 @dataclass(eq=False)
 class EstadoAFDMin:
@@ -109,6 +109,8 @@ def _refinar(particion, afd: AFD):
 
 
 def minimizar_afd(afd: AFD) -> AFDMinimizado:
+
+    time_particiones = time()
     """
     Minimiza un AFD mediante el algoritmo de partición de estados
     equivalentes:
@@ -128,6 +130,7 @@ def minimizar_afd(afd: AFD) -> AFDMinimizado:
         nueva_particion = _refinar(particion, afd)
 
         if set(nueva_particion) == set(particion):
+            time_particiones = time() - time_particiones
             particion = nueva_particion
             break
 
@@ -163,6 +166,8 @@ def minimizar_afd(afd: AFD) -> AFDMinimizado:
 
     inicial_min = estados_min[estado_a_grupo[afd.inicial]]
 
+    time_minimizacion = time() - time_particiones
+    print(f"Tiempo de minimización: {time_minimizacion:.6f} segundos")
     return AFDMinimizado(
         inicial=inicial_min,
         estados=estados_min,
@@ -173,6 +178,9 @@ def minimizar_afd_myhill_nerode(afd: AFD) -> AFDMinimizado:
     """
     Minimiza un AFD utilizando el algoritmo de llenado de tabla (Teorema de Myhill-Nerode).
     """
+
+    time_myhill_nerode = time()
+
     if afd is None or afd.inicial is None:
         raise ValueError("No se puede minimizar un AFD vacío.")
 
@@ -253,6 +261,9 @@ def minimizar_afd_myhill_nerode(afd: AFD) -> AFDMinimizado:
                 estado_min.agregar_transicion(simbolo, estados_min[grupo_destino])
 
     inicial_min = estados_min[estado_a_grupo[afd.inicial]]
+
+    time_myhill_nerode = time() - time_myhill_nerode
+    print(f"Tiempo de Myhill-Nerode: {time_myhill_nerode:.6f} segundos")
 
     return AFDMinimizado(
         inicial=inicial_min,
